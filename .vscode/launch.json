@@ -19,6 +19,14 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": ["unmounts3", "--uuid", "2c1eac0c-2c1d-4a7f-9fbf-9d519dffd53f"]
+        },
+        {
+            "name": "benchfs",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": ["jfsbench"]
         }
     ]
 }
