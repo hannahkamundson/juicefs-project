@@ -27,17 +27,12 @@ class JuiceFSBenchFio:
     def run(self, is_prod: bool):
         # setup
         threads = 1 # Number of threads to run in parallel
-        block_size = "10K" # Size of each I/O block
+        block_size = "1K" # Size of each I/O block
         file_sizes: list[str] # List of file sizes to run
-        file_count: int # Number of files to generate per thread per file size
-        # If we are just testing the output, just  keep it small
-        file_sizes = ["10K", "1M"]
-        file_count = 2
-
         # run and capture results
         modes = ["read", "write", "randread", "randwrite"]
         results: list[JuiceFSFioBenchResults] = []
-        for file_size in file_sizes:
+        for file_size in prod_file_sizes:
             for mode in modes:
                 self._run_juicefsfio_bench(
                                 file_size=file_size,
