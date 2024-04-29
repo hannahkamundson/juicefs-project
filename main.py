@@ -1,14 +1,28 @@
 import argparse
+import os
 
 from mount import MountS3, MountUplink
 from unmount import UnmountS3
 from juicefs_bench import JuiceFSBench
 from common import print_new_section
 
+mount_dir: str
+juicefs_executable: str
 
-mount_dir = "/home/hannah/Documents/example-mnt/mnt1"
-mount_dir2 = "/home/hannah/Documents/example-mnt/mnt2"
-juicefs_executable = "/home/hannah/Documents/Repos/juicefs/juicefs"
+user = os.getlogin()
+
+if user == "hannah":
+    mount_dir = "/home/hannah/Documents/example-mnt/mnt1"
+    juicefs_executable = "/home/hannah/Documents/Repos/juicefs/juicefs"
+elif user == "ubuntu": # prod
+    mount_dir = "/home/ubuntu/my-mnt"
+    juicefs_executable = "/home/ubuntu/code/juicefs/juicefs"
+elif user == "hamorrar": 
+    mount_dir = "/home/hamorrar/Documents/example-mnt/mnt1"
+    juicefs_executable = "/home/hamorrar/Documents/Repos/juicefs/juicefs"
+else:
+    raise Exception("Specify your user for the paths")
+
 postgres_string_s3 = "postgres://postgres@myjuicefs.cvosic8aio60.us-east-2.rds.amazonaws.com:5432/juicefss3"
 postgres_string_uplink = "postgres://postgres@myjuicefs.cvosic8aio60.us-east-2.rds.amazonaws.com:5432/juicefsuplink"
 
@@ -41,13 +55,13 @@ if __name__ == '__main__':
 
     if args.command == "mounts3":
         print("Mounting for S3")
-        mount_s3 = MountS3(postgres_string_s3, juicefs_executable, mount_dir2)
+        mount_s3 = MountS3(postgres_string_s3, juicefs_executable, mount_dir)
         uuid = mount_s3.run(args.name)
         print("UUID: " + uuid)
 
     elif args.command == "unmounts3":
         print("Unmounting S3")
-        unmount_s3 = UnmountS3(postgres_string_s3, juicefs_executable, mount_dir2)
+        unmount_s3 = UnmountS3(postgres_string_s3, juicefs_executable, mount_dir)
         unmount_s3.run(args.uuid)
 
     elif args.command == "mountuplink":
@@ -62,7 +76,7 @@ if __name__ == '__main__':
         if args.run_new:
             print("Running JuiceFS bench for Uplink")
             postgres_str = postgres_string_uplink
-            mount = mount_dir2
+            mount = mount_dir
         else:
             print("Running JuiceFS bench for S3")
             postgres_str = postgres_string_s3
