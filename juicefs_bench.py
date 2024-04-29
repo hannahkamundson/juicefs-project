@@ -122,13 +122,13 @@ class JuiceFSBench:
         read_value: str
 
         output_str = output.stdout.decode('utf-8')
-        output_stderr = output.stderr.decode('utf-8')
-
+        
         print(output_str)
 
-        if not output_stderr:
-            print(output_stderr)
+        output_stderr = output.stderr.decode('utf-8')
+        print(output_stderr)
 
+        if (not output_str) or output_str.strip() == "" or output_stderr:
             return None
 
         for line in output_str.split('\n'):
