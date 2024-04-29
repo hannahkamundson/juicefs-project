@@ -78,11 +78,14 @@ class JuiceFSBench:
         # run and capture results
         results: list[JuiceFSBenchResults] = []
         for file_size in file_sizes:
-            results.append(self._run_juicefs_bench(threads=threads,
+            val = self._run_juicefs_bench(threads=threads,
                             small_file_size=file_size,
                             small_file_count=file_count,
                             big_file_size=0, # We aren't doing big files
-                            block_size=block_size))
+                            block_size=block_size)
+            
+            if val:
+                results.append(val)
             
         print(TITLE)
         for result in results:
@@ -119,8 +122,14 @@ class JuiceFSBench:
         read_value: str
 
         output_str = output.stdout.decode('utf-8')
+        output_stderr = output.stderr.decode('utf-8')
 
         print(output_str)
+
+        if not output_stderr:
+            print(output_stderr)
+
+            return None
 
         for line in output_str.split('\n'):
             if found_item and "|" in line:
