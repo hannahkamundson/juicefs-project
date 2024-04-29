@@ -1,5 +1,6 @@
 import subprocess
 
+from common import test_file_sizes, prod_file_sizes
 
 class JuiceFSBenchResults:
     def __init__(self, num_files: int, block_size: str, file_size: str, write_files_per_second: str, read_files_per_second: str):
@@ -57,22 +58,11 @@ class JuiceFSBench:
         file_sizes: list[str] # List of file sizes to run
         file_count: int # Number of files to generate per thread per file size
         if is_prod:
-            file_sizes = [
-                "1K", # PNG image (though they range)
-                "10K", # JPG image (though they range)
-                "50K", # 5 page PDF
-                "100K", # single webpage
-                "500K", # 50 page PDF
-                "1M", # 1 minute MP3
-                "10M", # Max size of an email
-                "100M", # TODO What is this equivalent to?
-                "500M", # Standard 720p 30 minute TV show
-                "1G" # TODO What is this equivalent to?
-                          ]
+            file_sizes = prod_file_sizes
             file_count = 10
         else:
             # If we are just testing the output, just  keep it small
-            file_sizes = ["10K", "1M"]
+            file_sizes = test_file_sizes
             file_count = 3
 
         # run and capture results

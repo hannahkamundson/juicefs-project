@@ -4,6 +4,7 @@ import os
 from mount import MountS3, MountUplink
 from unmount import UnmountS3
 from juicefs_bench import JuiceFSBench
+from fio_bench import JuiceFSBenchFio
 from common import print_new_section
 
 mount_dir: str
@@ -20,6 +21,7 @@ elif user == "ubuntu": # prod
 elif user == "hamorrar": 
     mount_dir = "/home/hamorrar/Documents/example-mnt/mnt1"
     juicefs_executable = "/home/hamorrar/Documents/Repos/juicefs/juicefs"
+    mount_dir = "/home/hamorrar/exmnt/mnt"
 else:
     raise Exception("Specify your user for the paths")
 
@@ -51,7 +53,12 @@ if __name__ == '__main__':
     bench_parser.add_argument("--is-prod", action="store_true", help="Run for actual output")
     bench_parser.add_argument("--run-new", action="store_true", help="Run Uplink if true; otherwise, run s3")
 
+    bench_parser = subparsers.add_parser("fiobench", help="Run JuiceFS Fio benchmark test")
+
     args = parser.parse_args()
+
+    postgres_str: str
+    mount: str
 
     if args.command == "mounts3":
         print("Mounting for S3")
@@ -71,8 +78,6 @@ if __name__ == '__main__':
         print("UUID: " + uuid)
 
     elif args.command == "jfsbench":
-        postgres_str: str
-        mount: str
         if args.run_new:
             print("Running JuiceFS bench for Uplink")
             postgres_str = postgres_string_uplink
@@ -81,9 +86,16 @@ if __name__ == '__main__':
             print("Running JuiceFS bench for S3")
             postgres_str = postgres_string_s3
             mount = mount_dir
-
         # TODO: this needs to be changed per
         bench_cmd = JuiceFSBench(postgres_str, juicefs_executable, mount)
         bench_cmd.run(args.is_prod)
-        
+    
+    elif args.command == "fiobench":
+        print("Running JuiceFS bench for Fio")
+        postgres_str = postgres_string_uplink
+        mount = mount_dir
+
+        bench_cmd = JuiceFSBenchFio(mount)
+        bench_cmd.run(False) # TODO change this to is_prod
+    
     print_new_section("Finishing benchmarking")
