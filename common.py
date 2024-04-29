@@ -9,9 +9,9 @@ prod_file_sizes = [
                 "500K", # 50 page PDF
                 "1M", # 1 minute MP3
                 "10M", # Max size of an email
-                "100M", # TODO What is this equivalent to?
-                "500M", # Standard 720p 30 minute TV show
-                "1G" # TODO What is this equivalent to?
+                "100M" # TODO What is this equivalent to?
+                # "500M", # Standard 720p 30 minute TV show
+                # "1G" # TODO What is this equivalent to?
                           ]
 
 test_file_sizes = ["10K", "1M"]
