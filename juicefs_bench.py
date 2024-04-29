@@ -1,7 +1,5 @@
 import subprocess
 
-from common import print_new_section
-
 
 class JuiceFSBenchResults:
     def __init__(self, num_files: int, block_size: str, file_size: str, write_files_per_second: str, read_files_per_second: str):
@@ -25,25 +23,26 @@ class JuiceFSBenchResults:
         self.read_files_per_second_num = float(read_split[0])
         self.read_files_per_second_unit = read_split[1]
 
-        # Convert files/s to bytes/s
-        file_size_in_mib: float
+        # We want it in KiB
+        file_size_in_kib: float
         if self.file_size_unit.upper() == "K":
-            file_size_in_mib= self.file_size_num / (1 << 10)
+            file_size_in_kib= self.file_size_num << 0
         elif self.file_size_unit.upper() == "M":
-             file_size_in_mib = self.file_size_num
+             file_size_in_kib = self.file_size_num << 10
         elif self.file_size_unit.upper() == "G":
-            file_size_in_mib = self.file_size_num << 10
+            file_size_in_kib = self.file_size_num << 20
         else:
             raise ValueError("The file size must end in K, M, or G")
         
-        self.write_mib_per_second: float = self.write_files_per_second_num*file_size_in_mib
-        self.read_mib_per_second: float = self.read_files_per_second_num*file_size_in_mib
+        
+        self.write_Xib_per_second: float = self.write_files_per_second_num*file_size_in_kib
+        self.read_Xib_per_second: float = self.read_files_per_second_num*file_size_in_kib
 
     def __str__(self) -> str:
-        return f"{self.file_size_str},{self.file_size_num},{self.file_size_unit},{self.num_files},{self.block_size},{self.write_files_per_second_str},{self.write_files_per_second_num},{self.write_files_per_second_unit},{self.read_files_per_second_str},{self.read_files_per_second_num},{self.read_files_per_second_unit},{self.write_mib_per_second},{self.read_mib_per_second}"
+        return f"{self.file_size_str},{self.file_size_num},{self.file_size_unit},{self.num_files},{self.block_size},{self.write_files_per_second_str},{self.write_files_per_second_num},{self.write_files_per_second_unit},{self.read_files_per_second_str},{self.read_files_per_second_num},{self.read_files_per_second_unit},{self.write_Xib_per_second},{self.read_Xib_per_second}"
 
 # Make sure this matches the toString above
-TITLE: str = "file_size_str,file_size_num,file_size_unit,num_files,block_size,write_fps_str,write_fps_num,write_fps_unit,read_fps_str,read_fps_num,read_fps_unit,write_mib_per_second,read_mib_per_second"
+TITLE: str = "file_size_str,file_size_num,file_size_unit,num_files,block_size,write_fps_str,write_fps_num,write_fps_unit,read_fps_str,read_fps_num,read_fps_unit,write_Xib_per_second,read_Xib_per_second"
 
 class JuiceFSBench:
     def __init__(self, postgres_string: str, juicefs_executable: str, mount_dir: str):
@@ -98,7 +97,6 @@ class JuiceFSBench:
         """
         Run a single benchmark test
         """
-        print_new_section("JuiceFS Bench")
 
         output = subprocess.run([
             self.juicefs_executable,
@@ -120,7 +118,11 @@ class JuiceFSBench:
         write_value: str
         read_value: str
 
-        for line in output.stdout.decode('utf-8').split('\n'):
+        output_str = output.stdout.decode('utf-8')
+
+        print(output_str)
+
+        for line in output_str.split('\n'):
             if found_item and "|" in line:
                 parts = line.split("|")
                 metric = parts[1].strip()
